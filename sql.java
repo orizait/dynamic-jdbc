@@ -113,6 +113,54 @@ public class sql
 
     }
 
+    public static int execute_update_bind(String query,Connection con,Object[] values)
+    {
+        Logger log = LoggerFactory.getLogger(util.class);
+        try
+        {
+            try (PreparedStatement  ps = con.prepareStatement(query))
+            {
+
+                for (int i=0;i<values.length;i++)
+                {
+                    if(values[i]==null)
+                    {
+                        ps.setNull(i+1,(int)values[i]);
+                        continue;
+                    }
+                    Long l;
+                    String col_type=values[i].getClass().getSimpleName();
+                    switch(col_type)
+                    {
+                        case "String":
+                            ps.setString(i+1, (String) values[i]);
+                            break;
+                        case "Double":
+                            ps.setDouble(i+1, (double) values[i]);
+                            break;
+                        case "Long":
+                             l=new Long((long)values[i]);
+                            ps.setLong(i+1, l);
+                            break;
+                        case "Integer":
+                             l=new Long((Integer)values[i]);
+                            ps.setLong(i+1, l);
+                            break;
+                    }
+                }
+                return ps.executeUpdate();
+            }
+        }
+        catch (SQLException e)
+        {
+            log.error("error sql.select:"+e.getMessage());
+            return -1;
+        }
+
+    }
+
+    
+    
     public static int execute_batch(String query,Connection con,select_array arr,String[] columns)
     {
         int[] updateCounts=new int[0];
